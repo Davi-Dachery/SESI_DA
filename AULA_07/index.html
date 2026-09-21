@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Jogo da Velha</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <fieldset>
+    <legend>Jogadores</legend>
+    <input type="text" id="j1" placeholder="Jogador 1 (X)"><br>
+    <input type="text" id="j2" placeholder="Jogador 2 (O)"><br>
+    <button onclick="iniciar()">Iniciar</button>
+  </fieldset>
+
+  <h3 id="status"></h3>
+
+  <div id="game" style="display:none">
+    <table>
+      <tr><td onclick="jogar(this,0)"></td><td onclick="jogar(this,1)"></td><td onclick="jogar(this,2)"></td></tr>
+      <tr><td onclick="jogar(this,3)"></td><td onclick="jogar(this,4)"></td><td onclick="jogar(this,5)"></td></tr>
+      <tr><td onclick="jogar(this,6)"></td><td onclick="jogar(this,7)"></td><td onclick="jogar(this,8)"></td></tr>
+    </table>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html> 

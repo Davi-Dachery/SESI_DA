@@ -1,0 +1,51 @@
+body { 
+  font-family: sans-serif; 
+  background: #121212; 
+  color: #fff; 
+  text-align: center; 
+  margin-top: 30px; 
+}
+
+fieldset { 
+  width: 280px; 
+  margin: 0 auto 15px; 
+  border: 1px solid #444; 
+  border-radius: 8px; 
+}
+
+input { 
+  margin: 5px; 
+  padding: 5px; 
+}
+
+button { 
+  padding: 6px 12px; 
+  font-weight: bold; 
+  cursor: pointer; 
+}
+
+table { 
+  border-collapse: collapse; 
+  margin: 20px auto; 
+}
+
+td { 
+  width: 90px; 
+  height: 90px; 
+  font-size: 50px; 
+  font-weight: bold; 
+  text-align: center; 
+  cursor: pointer; 
+}
+
+td:hover { 
+  background-color: #222; 
+}
+
+tr:not(:last-child) td { 
+  border-bottom: 4px solid #fff; 
+}
+
+td:not(:last-child) { 
+  border-right: 4px solid #fff; 
+}
