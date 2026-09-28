@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Cadastrar Filme - CineDVZ</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>
+
+    <h1>CineDVZ</h1>
+
+    <nav>
+
+        <a href="index.html">Filmes</a>
+
+        <a href="cadastro.html">Cadastrar Filme</a>
+
+        <a href="contato.html">Informações e Contato</a>
+
+    </nav>
+
+</header>
+
+
+<div class="cadastro">
+
+    <h2>Cadastrar Filme</h2>
+
+
+    <label>Nome do filme:</label>
+
+    <input
+        type="text"
+        id="nome"
+        placeholder="Ex: Superman"
+    >
+
+
+    <label>Imagem:</label>
+
+    <input
+        type="file"
+        id="imagem"
+        accept="image/*"
+    >
+
+
+    <button onclick="cadastrar()">
+
+        Cadastrar filme
+
+    </button>
+
+
+    <p id="mensagem"></p>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

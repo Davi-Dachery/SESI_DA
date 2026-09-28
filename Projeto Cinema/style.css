@@ -1,0 +1,345 @@
+body {
+
+    margin: 0;
+
+    background-color: black;
+
+    color: white;
+
+    font-family: Arial;
+
+}
+
+
+/* MENU */
+
+header {
+
+    height: 55px;
+
+    background-color: #a00000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-around;
+
+}
+
+
+header h1 {
+
+    font-size: 22px;
+
+    margin: 0;
+
+}
+
+
+nav a {
+
+    color: white;
+
+    text-decoration: none;
+
+    margin-left: 20px;
+
+    font-size: 14px;
+
+}
+
+
+nav a:hover {
+
+    color: yellow;
+
+}
+
+
+/* LOCALIZAÇÃO */
+
+.localizacao {
+
+    text-align: center;
+
+    margin-top: 20px;
+
+    color: #ccc;
+
+    font-size: 14px;
+
+}
+
+
+/* FILMES */
+
+.filmes {
+
+    width: 750px;
+
+    margin: 30px auto;
+
+    border: 1px solid #800000;
+
+    padding: 20px;
+
+}
+
+
+.filmes h2 {
+
+    background-color: #a00000;
+
+    text-align: center;
+
+    padding: 12px;
+
+    margin-top: 0;
+
+}
+
+
+/* LISTA DE FILMES */
+
+.lista-filmes {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 30px;
+
+    flex-wrap: wrap;
+
+}
+
+
+/* FILME */
+
+.filme {
+
+    width: 180px;
+
+    text-align: center;
+
+}
+
+
+/* IMAGEM */
+
+.filme img {
+
+    width: 180px;
+
+    height: 260px;
+
+    object-fit: cover;
+
+    border: 1px solid #a00000;
+
+}
+
+
+/* NOME */
+
+.filme p {
+
+    font-size: 14px;
+
+}
+
+
+/* LINKS */
+
+.filme a {
+
+    color: white;
+
+    text-decoration: none;
+
+}
+
+
+.filme a:hover {
+
+    color: yellow;
+
+}
+
+
+/* CADASTRO */
+
+.cadastro {
+
+    width: 500px;
+
+    margin: 30px auto;
+
+    background-color: #111;
+
+    padding: 30px;
+
+}
+
+
+.cadastro h2 {
+
+    background-color: #a00000;
+
+    text-align: center;
+
+    padding: 12px;
+
+}
+
+
+.cadastro label {
+
+    display: block;
+
+    margin-top: 15px;
+
+}
+
+
+.cadastro input {
+
+    width: 100%;
+
+    padding: 10px;
+
+    margin-top: 5px;
+
+    box-sizing: border-box;
+
+}
+
+
+.cadastro button {
+
+    margin-top: 20px;
+
+    padding: 12px;
+
+    background-color: #a00000;
+
+    color: white;
+
+    border: none;
+
+    cursor: pointer;
+
+}
+
+
+.cadastro button:hover {
+
+    background-color: #c00000;
+
+}
+
+
+/* CONTATO */
+
+.contato {
+
+    width: 600px;
+
+    margin: 30px auto;
+
+    background-color: #111;
+
+    padding: 30px;
+
+    border: 1px solid #800000;
+
+}
+
+
+.contato h2 {
+
+    background-color: #a00000;
+
+    text-align: center;
+
+    padding: 12px;
+
+}
+
+
+.contato h3 {
+
+    margin-top: 25px;
+
+}
+
+
+.contato p {
+
+    color: #bbb;
+
+}
+
+
+/* SESSÕES */
+
+.sessoes {
+
+    width: 600px;
+
+    margin: 40px auto;
+
+    text-align: center;
+
+}
+
+
+.sessoes h2 {
+
+    background-color: #a00000;
+
+    padding: 15px;
+
+}
+
+
+.horarios button {
+
+    padding: 12px 20px;
+
+    margin: 5px;
+
+    background-color: #a00000;
+
+    color: white;
+
+    border: none;
+
+    cursor: pointer;
+
+}
+
+
+.horarios button:hover {
+
+    background-color: #c00000;
+
+}
+
+
+/* RODAPÉ */
+
+footer {
+
+    width: 750px;
+
+    margin: 50px auto;
+
+    color: #aaa;
+
+    font-size: 12px;
+
+    text-align: center;
+
+}
