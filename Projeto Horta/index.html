@@ -3,245 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horta Escolar - Cultivo de Tomates</title>
-    
-    <!-- CSS Externo -->
+    <title>Horta Escolar – Tomateiros</title>
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Font Awesome (Ícones) e Chart.js (Gráficos) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
-
-    <!-- Header / Navbar -->
-    <header class="navbar">
-        <div class="logo">
-            <i class="fa-solid fa-seedling"></i>
-            <span>Horta Escolar <strong>| Tomateiros</strong></span>
-        </div>
+    <header class="topbar">
+        <strong>Horta Escolar · Tomateiros</strong>
         <nav>
-            <ul>
-                <li><a href="#dashboard">Dashboard</a></li>
-                <li><a href="#irrigacao">Irrigação</a></li>
-                <li><a href="#tempo">Previsão</a></li>
-                <li><a href="#manejo">Dicas de Manejo</a></li>
-            </ul>
+            <a href="#dashboard">Sensores</a>
+            <a href="#tempo">Previsão</a>
+            <a href="#irrigacao">Irrigação</a>
+            <a href="#manejo">Manejo</a>
         </nav>
     </header>
 
-    <div class="container">
+    <main>
+        <section id="dashboard">
+            <h2>Sensores</h2>
+            <div class="stats">
+                <div class="stat"><span>Umidade do solo</span><b>68%</b><small>Ideal</small></div>
+                <div class="stat"><span>Temperatura do solo</span><b>22 °C</b><small>Ótima</small></div>
+                <div class="stat"><span>pH</span><b>6,5</b><small>Faixa 6,0–6,8</small></div>
+                <div class="stat"><span>Fase</span><b>Floração</b><small>Frutos em breve</small></div>
+            </div>
+        </section>
 
-        <!-- Banner de Boas-Vindas -->
-        <section class="welcome-banner">
+        <section id="tempo">
+            <div class="row">
+                <h2>Previsão · Dois Vizinhos, PR</h2>
+                <small id="weather-source" class="muted"></small>
+            </div>
+            <p class="now"><b id="weather-now">--</b> <span id="weather-now-desc"></span></p>
+            <div class="days" id="forecast-days"></div>
+            <p class="note" id="irrigation-advice"></p>
+        </section>
+
+        <section id="irrigacao">
+            <div class="row">
+                <h2>Irrigação</h2>
+                <button class="btn" id="btn-open-modal" type="button">Registrar irrigação</button>
+            </div>
+            <div class="grid">
+                <div>
+                    <table>
+                        <thead>
+                            <tr><th>Data</th><th>Hora</th><th>Volume</th><th>Método</th></tr>
+                        </thead>
+                        <tbody id="irrigation-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="chart-box"><canvas id="irrigationChart"></canvas></div>
+            </div>
+        </section>
+
+        <section id="manejo" class="grid">
             <div>
-                <h1>Projeto Horta Escolar Sustentável 🍅</h1>
-                <p>Monitoramento e acompanhamento em tempo real do cultivo de tomateiros.</p>
-            </div>
-            <div class="status-badge">
-                <i class="fa-solid fa-circle-check"></i> Status: Saudável
-            </div>
-        </section>
-
-        <!-- Sensores e Status Atual (Dashboard) -->
-        <section id="dashboard" class="metrics-grid">
-            <div class="card metric-card">
-                <div class="card-icon blue"><i class="fa-solid fa-droplet"></i></div>
-                <div class="card-info">
-                    <span class="label">Umidade do Solo</span>
-                    <h2 id="sensor-umidade">68%</h2>
-                    <span class="status-text good">Ideal para o Tomate</span>
-                </div>
-            </div>
-
-            <div class="card metric-card">
-                <div class="card-icon orange"><i class="fa-solid fa-temperature-high"></i></div>
-                <div class="card-info">
-                    <span class="label">Temp. do Solo</span>
-                    <h2 id="sensor-temp">22°C</h2>
-                    <span class="status-text good">Temperatura Ótima</span>
-                </div>
-            </div>
-
-            <div class="card metric-card">
-                <div class="card-icon green"><i class="fa-solid fa-vial"></i></div>
-                <div class="card-info">
-                    <span class="label">pH do Solo</span>
-                    <h2 id="sensor-ph">6.5</h2>
-                    <span class="status-text good">Faixa Ideal (6.0 - 6.8)</span>
-                </div>
-            </div>
-
-            <div class="card metric-card">
-                <div class="card-icon red"><i class="fa-solid fa-apple-whole"></i></div>
-                <div class="card-info">
-                    <span class="label">Fase de Crescimento</span>
-                    <h2>Floração</h2>
-                    <span class="status-text">Frutificação Próxima</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Previsão do Tempo + Alerta Agrícola -->
-        <section id="tempo" class="weather-section">
-            <div class="card main-weather">
-                <div class="weather-header">
-                    <div>
-                        <h3>Previsão Meteorológica Escolar</h3>
-                        <p class="subtitle">Dados locais para ajuste de irrigação</p>
-                    </div>
-                    <i class="fa-solid fa-sun weather-main-icon"></i>
-                </div>
-                <div class="weather-body">
-                    <div class="temp-display">
-                        <span class="current-temp">26°C</span>
-                        <span class="weather-desc">Ensolarado com poucas nuvens</span>
-                    </div>
-                    <div class="weather-details">
-                        <div><i class="fa-solid fa-wind"></i> Vento: 12 km/h</div>
-                        <div><i class="fa-solid fa-cloud-rain"></i> Prob. Chuva: 10%</div>
-                        <div><i class="fa-solid fa-sun"></i> Índice UV: 7 (Alto)</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card alert-card">
-                <div class="alert-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <div class="alert-content">
-                    <h4>Alerta Agricola do Tomate</h4>
-                    <p>Clima quente e seco. Recomendado irrigar no início da manhã ou final da tarde para evitar perda por evaporação e prevenir estresse hídrico.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Seção de Irrigação (Histórico + Gráfico + Formulário) -->
-        <section id="irrigacao" class="irrigation-section">
-            <div class="section-title">
-                <h2><i class="fa-solid fa-faucet-drip"></i> Controle e Histórico de Irrigação</h2>
-                <button class="btn btn-primary" id="btn-open-modal">
-                    <i class="fa-solid fa-plus"></i> Registrar Irrigação
-                </button>
-            </div>
-
-            <div class="grid-2-cols">
-                <!-- Tabela de Histórico -->
-                <div class="card">
-                    <h3>Registros Recentes</h3>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Data</th>
-                                    <th>Hora</th>
-                                    <th>Volume (L)</th>
-                                    <th>Método</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="irrigation-table-body">
-                                <!-- Preenchido dinamicamente pelo JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Gráfico de Consumo -->
-                <div class="card">
-                    <h3>Consumo de Água (Últimos Dias)</h3>
-                    <div class="chart-container">
-                        <canvas id="irrigationChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Dicas de Manejo e Calculadora de Colheita -->
-        <section id="manejo" class="grid-2-cols">
-            <!-- Dicas de Manejo -->
-            <div class="card">
-                <h3><i class="fa-solid fa-book-open"></i> Guia Rápido do Tomateiro</h3>
-                <ul class="tips-list">
-                    <li>
-                        <i class="fa-solid fa-check circle-icon"></i>
-                        <div>
-                            <strong>Rega Direta na Raiz:</strong> Evite molhar as folhas do tomateiro para prevenir doenças fungicas.
-                        </div>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-check circle-icon"></i>
-                        <div>
-                            <strong>Desbrota:</strong> Remova os brotos ladrões nas axilas das folhas para que a planta concentre energia nos tomates.
-                        </div>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-check circle-icon"></i>
-                        <div>
-                            <strong>Tutoramento:</strong> Utilize estacas para amarrar o tomateiro à medida que ele cresce, evitando que os frutos encostem no solo.
-                        </div>
-                    </li>
+                <h2>Guia rápido</h2>
+                <ul class="tips">
+                    <li><b>Rega na raiz.</b> Evite molhar as folhas para prevenir fungos.</li>
+                    <li><b>Desbrota.</b> Remova os brotos das axilas das folhas.</li>
+                    <li><b>Tutoramento.</b> Amarre a planta em estacas para os frutos não tocarem o solo.</li>
                 </ul>
             </div>
-
-            <!-- Calculadora Escolar -->
-            <div class="card">
-                <h3><i class="fa-solid fa-calculator"></i> Estimativa de Colheita</h3>
-                <p class="subtitle">Simule a produção aproximada da horta escolar</p>
-                
-                <form id="calc-form" class="calc-form">
-                    <div class="form-group">
-                        <label for="num-plantas">Quantidade de Pés de Tomate:</label>
-                        <input type="number" id="num-plantas" value="10" min="1" required>
-                    </div>
-                    <button type="submit" class="btn btn-secondary">Calcular Estimativa</button>
+            <div>
+                <h2>Estimativa de colheita</h2>
+                <form id="calc-form" class="inline-form">
+                    <label for="num-plantas">Pés de tomate</label>
+                    <input type="number" id="num-plantas" value="10" min="1" required>
+                    <button class="btn btn-outline" type="submit">Calcular</button>
                 </form>
-
-                <div id="calc-result" class="calc-result hidden">
-                    <h4>Resultado Estimado:</h4>
-                    <p>Produção aproximada: <strong id="res-kg">30</strong> kg de tomates.</p>
-                    <p>Estimativa de frutos: <strong id="res-unid">300</strong> unidades.</p>
-                </div>
+                <p id="calc-result" class="result" hidden></p>
             </div>
         </section>
+    </main>
 
-    </div>
-
-    <!-- Modal para Novo Registro de Irrigação -->
-    <div class="modal-overlay" id="modal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3>Novo Registro de Irrigação</h3>
-                <button class="close-btn" id="btn-close-modal">&times;</button>
+    <div class="overlay" id="modal" hidden>
+        <form class="modal" id="irrigation-form">
+            <h3>Registrar irrigação</h3>
+            <label>Data <input type="date" id="data" required></label>
+            <label>Hora <input type="time" id="hora" required></label>
+            <label>Volume (litros) <input type="number" step="0.5" min="0.5" id="volume" placeholder="5,5" required></label>
+            <label>Método
+                <select id="metodo">
+                    <option>Gotejamento</option>
+                    <option>Regador manual</option>
+                    <option>Microaspersão</option>
+                </select>
+            </label>
+            <div class="actions">
+                <button type="button" class="btn btn-outline" id="btn-cancel-modal">Cancelar</button>
+                <button type="submit" class="btn">Salvar</button>
             </div>
-            <form id="irrigation-form">
-                <div class="form-group">
-                    <label for="data">Data:</label>
-                    <input type="date" id="data" required>
-                </div>
-                <div class="form-group">
-                    <label for="hora">Horário:</label>
-                    <input type="time" id="hora" required>
-                </div>
-                <div class="form-group">
-                    <label for="volume">Volume de Água (Litros):</label>
-                    <input type="number" step="0.5" id="volume" placeholder="Ex: 5.5" required>
-                </div>
-                <div class="form-group">
-                    <label for="metodo">Método:</label>
-                    <select id="metodo">
-                        <option value="Gotejamento">Gotejamento</option>
-                        <option value="Regador Manual">Regador Manual</option>
-                        <option value="Microaspersão">Microaspersão</option>
-                    </select>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-cancel" id="btn-cancel-modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar Registro</button>
-                </div>
-            </form>
-        </div>
+        </form>
     </div>
 
-    <!-- JavaScript Externo -->
     <script src="script.js"></script>
 </body>
 </html>

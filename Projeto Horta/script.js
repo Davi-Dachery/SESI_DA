@@ -1,145 +1,182 @@
-// --- DADOS INICIAIS DA IRRIGAÇÃO ---
-let historicoIrrigacao = [
-    { data: '2026-10-06', hora: '08:00', volume: 6, metodo: 'Gotejamento', status: 'Concluído' },
-    { data: '2026-10-05', hora: '17:30', volume: 5, metodo: 'Gotejamento', status: 'Concluído' },
-    { data: '2026-10-04', hora: '08:15', volume: 6, metodo: 'Regador Manual', status: 'Concluído' },
-    { data: '2026-10-03', hora: '08:00', volume: 4.5, metodo: 'Gotejamento', status: 'Concluído' },
+// --- DADOS ---
+let historico = [
+    { data: '2026-10-06', hora: '08:00', volume: 6,   metodo: 'Gotejamento' },
+    { data: '2026-10-05', hora: '17:30', volume: 5,   metodo: 'Gotejamento' },
+    { data: '2026-10-04', hora: '08:15', volume: 6,   metodo: 'Regador manual' },
+    { data: '2026-10-03', hora: '08:00', volume: 4.5, metodo: 'Gotejamento' },
 ];
 
-let myChart = null;
+let grafico = null;
+const $ = (id) => document.getElementById(id);
 
-// --- INICIALIZAÇÃO DA PÁGINA ---
-document.addEventListener('DOMContentLoaded', () => {
-    carregarTabela();
-    inicializarGrafico();
-    configurarEventos();
-});
+const fmtData = (iso) => iso.split('-').reverse().join('/');
+const fmtNum = (n) => String(n).replace('.', ',');
 
-// --- RENDERIZAR TABELA ---
-function carregarTabela() {
-    const tbody = document.getElementById('irrigation-table-body');
-    tbody.innerHTML = '';
-
-    historicoIrrigacao.forEach(item => {
-        // Formatar data (AAAA-MM-DD para DD/MM/AAAA)
-        const partesData = item.data.split('-');
-        const dataFormatada = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${dataFormatada}</td>
-            <td>${item.hora}</td>
-            <td>${item.volume} L</td>
-            <td>${item.metodo}</td>
-            <td><span class="badge-status success">${item.status}</span></td>
-        `;
-        tbody.appendChild(tr);
-    });
+// --- TABELA ---
+function renderTabela() {
+    $('irrigation-table-body').innerHTML = historico.map(r => `
+        <tr>
+            <td>${fmtData(r.data)}</td>
+            <td>${r.hora}</td>
+            <td>${fmtNum(r.volume)} L</td>
+            <td>${r.metodo}</td>
+        </tr>`).join('');
 }
 
-// --- GRÁFICO (CHART.JS) ---
-function inicializarGrafico() {
-    const ctx = document.getElementById('irrigationChart').getContext('2d');
+// --- GRÁFICO (últimos 7 registros, do mais antigo ao mais novo) ---
+function dadosGrafico() {
+    const ultimos = historico.slice(0, 7).reverse();
+    return {
+        labels: ultimos.map(r => fmtData(r.data).slice(0, 5)),
+        valores: ultimos.map(r => r.volume),
+    };
+}
 
-    // Organizar dados para o gráfico (Últimos registros)
-    const labels = historicoIrrigacao.slice().reverse().map(item => {
-        const p = item.data.split('-');
-        return `${p[2]}/${p[1]}`;
-    });
-
-    const dados = historicoIrrigacao.slice().reverse().map(item => item.volume);
-
-    myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Volume de Água (Litros)',
-                data: dados,
-                borderColor: '#0288d1',
-                backgroundColor: 'rgba(2, 136, 209, 0.1)',
-                fill: true,
-                tension: 0.3,
-                borderWidth: 2,
-                pointBackgroundColor: '#0288d1'
-            }]
-        },
+function criarGrafico() {
+    if (typeof Chart === 'undefined') return; // CDN indisponível: o resto continua funcionando
+    const { labels, valores } = dadosGrafico();
+    grafico = new Chart($('irrigationChart'), {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Litros', data: valores, backgroundColor: '#c8402a', borderRadius: 3 }] },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: 'Litros (L)' }
-                }
-            }
-        }
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Litros' } } },
+        },
     });
 }
 
-// --- ATUALIZAR GRÁFICO APÓS NOVO REGISTRO ---
 function atualizarGrafico() {
-    if (!myChart) return;
-
-    const labels = historicoIrrigacao.slice().reverse().map(item => {
-        const p = item.data.split('-');
-        return `${p[2]}/${p[1]}`;
-    });
-
-    const dados = historicoIrrigacao.slice().reverse().map(item => item.volume);
-
-    myChart.data.labels = labels;
-    myChart.data.datasets[0].data = dados;
-    myChart.update();
+    if (!grafico) return;
+    const { labels, valores } = dadosGrafico();
+    grafico.data.labels = labels;
+    grafico.data.datasets[0].data = valores;
+    grafico.update();
 }
 
-// --- CONFIGURAÇÃO DE EVENTOS E MODAL ---
-function configurarEventos() {
-    const modal = document.getElementById('modal');
-    const btnOpen = document.getElementById('btn-open-modal');
-    const btnClose = document.getElementById('btn-close-modal');
-    const btnCancel = document.getElementById('btn-cancel-modal');
-    const formIrrigacao = document.getElementById('irrigation-form');
-    const formCalc = document.getElementById('calc-form');}
+// --- MODAL ---
+function abrirModal() {
+    const agora = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    $('data').value = `${agora.getFullYear()}-${pad(agora.getMonth() + 1)}-${pad(agora.getDate())}`;
+    $('hora').value = `${pad(agora.getHours())}:${pad(agora.getMinutes())}`;
+    $('modal').hidden = false;
+    $('volume').focus();
+}
 
-    // Abrir Modal
-    btnOpen.addEventListener('click', () => {
-        // Preencher data e hora atuais no formulário
-        const hoje = new Date();
-        document.getElementById('data').value = hoje.toISOString().split('T')[0];
-        document.getElementById('hora').value = hoje.toTimeString().substring(0, 5);
-        modal.classList.add('active');
-    });
+function fecharModal() {
+    $('modal').hidden = true;
+    $('irrigation-form').reset();
+}
 
-    // Fechar Modal
-    const fecharModal = () => modal.classList.remove('active');
-    btnClose.addEventListener('click', fecharModal);
-    btnCancel.addEventListener('click', fecharModal);
+// --- PREVISÃO DO TEMPO (Dois Vizinhos, PR) ---
+// Dados de reserva (previsão de 20/10/2026), usados se a busca online falhar.
+let previsao = {
+    atual: { temp: 23, desc: 'Ensolarado' },
+    dias: [
+        ['2026-10-20', 11, 28, 10], ['2026-10-21', 18, 24, 75], ['2026-10-22', 18, 19, 85],
+        ['2026-10-23', 18, 22, 85], ['2026-10-24', 19, 22, 85], ['2026-10-25', 12, 25, 15],
+        ['2026-10-26', 14, 25, 10], ['2026-10-27', 17, 24, 65],
+    ].map(([data, min, max, chuva]) => ({ data, min, max, chuva })),
+    fonte: 'Dados de 20/10/2026',
+};
 
-    // Submeter Novo Registro
-    formIrrigacao.addEventListener('submit', (e) => {
-        e.preventDefault();
+const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-        const novoRegistro = {
-            data: document.getElementById('data').value,
-            hora: document.getElementById('hora').value,
-            volume: parseFloat(document.getElementById('volume').value),
-            metodo: document.getElementById('metodo').value,
-            status: 'Concluído'
+function descricaoClima(codigo) {
+    if (codigo === 0) return 'Céu limpo';
+    if (codigo <= 3) return 'Parcialmente nublado';
+    if (codigo <= 48) return 'Neblina';
+    if (codigo <= 67 || (codigo >= 80 && codigo <= 82)) return 'Chuva';
+    if (codigo >= 95) return 'Tempestade';
+    return 'Nublado';
+}
+
+function renderPrevisao() {
+    $('weather-now').textContent = `${previsao.atual.temp} °C`;
+    $('weather-now-desc').textContent = previsao.atual.desc;
+    $('weather-source').textContent = previsao.fonte;
+
+    $('forecast-days').innerHTML = previsao.dias.map((d, i) => {
+        const [a, m, dia] = d.data.split('-').map(Number);
+        const nome = i === 0 ? 'Hoje' : DIAS_SEMANA[new Date(a, m - 1, dia).getDay()];
+        return `<div class="day ${d.chuva >= 60 ? 'wet' : ''}">
+            <b>${nome} ${String(dia).padStart(2, '0')}/${String(m).padStart(2, '0')}</b>
+            <span>${d.min}° / ${d.max}°</span>
+            <span class="rain">Chuva ${d.chuva}%</span>
+        </div>`;
+    }).join('');
+
+    // Recomendação de irrigação
+    const [hoje, amanha] = previsao.dias;
+    let dica;
+    if (hoje.chuva >= 60) dica = 'Chuva provável hoje: dispense a irrigação e confira a drenagem dos canteiros.';
+    else if (amanha && amanha.chuva >= 60) dica = 'Chuva provável amanhã: irrigue hoje de manhã cedo ou no fim da tarde e pule a rega de amanhã.';
+    else dica = 'Sem chuva à vista: irrigue de manhã cedo ou no fim da tarde para evitar perda por evaporação.';
+    $('irrigation-advice').textContent = dica;
+}
+
+async function buscarPrevisao() {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=-25.7408&longitude=-53.0575'
+        + '&current=temperature_2m,weather_code'
+        + '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max'
+        + '&timezone=America%2FSao_Paulo&forecast_days=8';
+    try {
+        const r = await fetch(url);
+        if (!r.ok) throw new Error(r.status);
+        const j = await r.json();
+        previsao = {
+            atual: { temp: Math.round(j.current.temperature_2m), desc: descricaoClima(j.current.weather_code) },
+            dias: j.daily.time.map((data, i) => ({
+                data,
+                min: Math.round(j.daily.temperature_2m_min[i]),
+                max: Math.round(j.daily.temperature_2m_max[i]),
+                chuva: j.daily.precipitation_probability_max[i],
+            })),
+            fonte: 'Atualizado agora (Open-Meteo)',
         };
+    } catch (e) {
+        // mantém os dados de reserva
+    }
+    renderPrevisao();
+}
 
-        // Adiciona no início da lista
-        historicoIrrigacao.unshift(novoRegistro);
+// --- EVENTOS ---
+document.addEventListener('DOMContentLoaded', () => {
+    renderTabela();
+    criarGrafico();
+    renderPrevisao();
+    buscarPrevisao();
+    setInterval(buscarPrevisao, 30 * 60 * 1000); // atualiza a cada 30 minutos
 
-        // Atualiza a tela
-        carregarTabela();
+    $('btn-open-modal').addEventListener('click', abrirModal);
+    $('btn-cancel-modal').addEventListener('click', fecharModal);
+    $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) fecharModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
+
+    $('irrigation-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        historico.push({
+            data: $('data').value,
+            hora: $('hora').value,
+            volume: parseFloat($('volume').value),
+            metodo: $('metodo').value,
+        });
+        // mais recente primeiro (data + hora)
+        historico.sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora));
+        renderTabela();
         atualizarGrafico();
         fecharModal();
-        formIrrigacao.reset();
     });
 
-    // Calculadora de Colheita
-    formCalc.addEventListener('submit'), (e) => {
+    // Estimativa: ~3 kg e ~30 frutos por pé
+    $('calc-form').addEventListener('submit', (e) => {
         e.preventDefault();
-        const numPlantas = parseInt(document.getElementById('num') );
-    }
+        const n = parseInt($('num-plantas').value, 10);
+        if (!n || n < 1) return;
+        const out = $('calc-result');
+        out.innerHTML = `Cerca de <b>${n * 3} kg</b> de tomates (≈ <b>${n * 30}</b> frutos).`;
+        out.hidden = false;
+    });
+});
