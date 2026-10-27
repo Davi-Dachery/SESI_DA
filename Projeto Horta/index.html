@@ -20,13 +20,19 @@
 
     <main>
         <section id="dashboard">
-            <h2>Sensores</h2>
-            <div class="stats">
-                <div class="stat"><span>Umidade do solo</span><b>68%</b><small>Ideal</small></div>
-                <div class="stat"><span>Temperatura do solo</span><b>22 °C</b><small>Ótima</small></div>
-                <div class="stat"><span>pH</span><b>6,5</b><small>Faixa 6,0–6,8</small></div>
-                <div class="stat"><span>Fase</span><b>Floração</b><small>Frutos em breve</small></div>
+            <div class="row">
+                <h2>Sensores</h2>
+                <a class="btn btn-outline" id="link-simulador" href="simulador.html" target="simulador">Abrir simulador</a>
             </div>
+            <div class="stats">
+                <div class="stat" id="card-umidade"><span>Umidade do solo</span><b id="sensor-umidade">68%</b><small id="status-umidade">Ideal</small></div>
+                <div class="stat" id="card-temp"><span>Temperatura do solo</span><b id="sensor-temp">22 °C</b><small id="status-temp">Ótima</small></div>
+                <div class="stat" id="card-ph"><span>pH</span><b id="sensor-ph">6,5</b><small id="status-ph">Faixa ideal (6,0–6,8)</small></div>
+                <div class="stat" id="card-fase"><span>Fase</span><b id="sensor-fase">Floração</b><small id="status-fase">Frutos em breve</small></div>
+            </div>
+
+            <p class="muted" id="sensor-fonte"></p>
+            <p class="note" id="sensor-advice"></p>
         </section>
 
         <section id="tempo">
@@ -98,6 +104,7 @@
         </form>
     </div>
 
+    <script src="sensores.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

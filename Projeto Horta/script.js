@@ -7,10 +7,8 @@ let historico = [
 ];
 
 let grafico = null;
-const $ = (id) => document.getElementById(id);
 
 const fmtData = (iso) => iso.split('-').reverse().join('/');
-const fmtNum = (n) => String(n).replace('.', ',');
 
 // --- TABELA ---
 function renderTabela() {
@@ -142,10 +140,40 @@ async function buscarPrevisao() {
     renderPrevisao();
 }
 
+// --- SENSORES (os dados vêm do simulador.html) ---
+let sensores = lerSensores();
+
+function atualizarPainelSensores() {
+    renderSensores(sensores);
+    $('sensor-fonte').textContent = sensores.ts
+        ? `Dados do simulador · atualizado às ${new Date(sensores.ts).toLocaleTimeString('pt-BR')}`
+        : 'Valores padrão · abra o simulador para alterar';
+}
+
+// Chegaram dados novos do simulador
+function receberSensores(novo) {
+    if ((novo.ts || 0) > (sensores.ts || 0)) {
+        sensores = novo;
+        atualizarPainelSensores();
+    }
+}
+
+// Abre o simulador numa aba e guarda a janela para conversar com ela
+function abrirSimulador(e) {
+    const w = window.open('simulador.html', 'simulador');
+    if (w) {
+        e.preventDefault();
+        janelasParceiras.add(w);
+    }
+}
+
 // --- EVENTOS ---
 document.addEventListener('DOMContentLoaded', () => {
     renderTabela();
     criarGrafico();
+    atualizarPainelSensores();
+    escutarSensores(receberSensores, () => sensores);
+    $('link-simulador').addEventListener('click', abrirSimulador);
     renderPrevisao();
     buscarPrevisao();
     setInterval(buscarPrevisao, 30 * 60 * 1000); // atualiza a cada 30 minutos
@@ -167,6 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
         historico.sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora));
         renderTabela();
         atualizarGrafico();
+        // irrigar sobe a umidade (~2% por litro) e avisa o simulador
+        sensores = { ...sensores, umidade: Math.min(100, Math.round(sensores.umidade + parseFloat($('volume').value) * 2)), ts: Date.now() };
+        transmitirSensores(sensores);
+        atualizarPainelSensores();
         fecharModal();
     });
 

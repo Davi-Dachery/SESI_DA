@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Sensores – Horta Escolar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="topbar">
+        <strong>Simulador de sensores</strong>
+        <nav><a href="index.html">← Voltar ao painel</a></nav>
+    </header>
+
+    <main>
+        <section>
+            <div class="row">
+                <h2>Valores atuais</h2>
+                <div class="sim-actions">
+                    <button class="btn btn-outline" id="btn-auto" type="button">Modo automático</button>
+                    <button class="btn btn-outline" id="btn-reset" type="button">Restaurar</button>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat" id="card-umidade"><span>Umidade do solo</span><b id="sensor-umidade">68%</b><small id="status-umidade">Ideal</small></div>
+                <div class="stat" id="card-temp"><span>Temperatura do solo</span><b id="sensor-temp">22 °C</b><small id="status-temp">Ótima</small></div>
+                <div class="stat" id="card-ph"><span>pH</span><b id="sensor-ph">6,5</b><small id="status-ph">Faixa ideal (6,0–6,8)</small></div>
+                <div class="stat" id="card-fase"><span>Fase</span><b id="sensor-fase">Floração</b><small id="status-fase">Frutos em breve</small></div>
+            </div>
+            <p class="note" id="sensor-advice"></p>
+        </section>
+
+        <section>
+            <h2>Ajustar manualmente</h2>
+            <div class="sliders">
+                <label>Umidade do solo <output id="out-umidade">68%</output>
+                    <input type="range" id="sim-umidade" min="0" max="100" step="1" value="68">
+                </label>
+                <label>Temperatura do solo <output id="out-temp">22 °C</output>
+                    <input type="range" id="sim-temp" min="5" max="40" step="1" value="22">
+                </label>
+                <label>pH do solo <output id="out-ph">6,5</output>
+                    <input type="range" id="sim-ph" min="4" max="9" step="0.1" value="6.5">
+                </label>
+                <label>Fase da planta
+                    <select id="sim-fase">
+                        <option>Muda</option>
+                        <option>Crescimento</option>
+                        <option selected>Floração</option>
+                        <option>Frutificação</option>
+                        <option>Colheita</option>
+                    </select>
+                </label>
+            </div>
+
+            <h3 class="sub">Cenários rápidos</h3>
+            <div class="cenarios">
+                <button class="btn btn-outline" type="button" data-cenario="ideal">Tudo ideal</button>
+                <button class="btn btn-outline" type="button" data-cenario="seca">Solo seco</button>
+                <button class="btn btn-outline" type="button" data-cenario="encharcado">Encharcado</button>
+                <button class="btn btn-outline" type="button" data-cenario="calor">Onda de calor</button>
+                <button class="btn btn-outline" type="button" data-cenario="acido">Solo ácido</button>
+            </div>
+            <p class="muted sync-info">Cada mudança é enviada na hora para o painel principal. Mantenha as duas abas abertas.</p>
+        </section>
+    </main>
+
+    <script src="sensores.js"></script>
+    <script src="simulador.js"></script>
+</body>
+</html>
