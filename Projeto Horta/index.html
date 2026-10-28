@@ -9,6 +9,7 @@
 </head>
 <body>
     <header class="topbar">
+        <img class="logo-sesi" src="logo-sesi-branca.png" alt="Sistema Fiep: FIEP, SESI, SENAI e IEL">
         <strong>Horta Escolar · Tomateiros</strong>
         <nav>
             <a href="#dashboard">Sensores</a>
@@ -54,10 +55,11 @@
                 <div>
                     <table>
                         <thead>
-                            <tr><th>Data</th><th>Hora</th><th>Volume</th><th>Método</th></tr>
+                            <tr><th>Data</th><th>Hora</th><th>Volume</th><th>Método</th><th></th></tr>
                         </thead>
                         <tbody id="irrigation-table-body"></tbody>
                     </table>
+                    <p class="muted" id="armazenamento-status"></p>
                 </div>
                 <div class="chart-box"><canvas id="irrigationChart"></canvas></div>
             </div>

@@ -1,10 +1,84 @@
 // --- DADOS ---
-let historico = [
-    { data: '2026-10-06', hora: '08:00', volume: 6,   metodo: 'Gotejamento' },
-    { data: '2026-10-05', hora: '17:30', volume: 5,   metodo: 'Gotejamento' },
-    { data: '2026-10-04', hora: '08:15', volume: 6,   metodo: 'Regador manual' },
-    { data: '2026-10-03', hora: '08:00', volume: 4.5, metodo: 'Gotejamento' },
+// Com o servidor (node server.js) os registros ficam salvos para todos os navegadores.
+// Sem servidor, ficam salvos só neste navegador (localStorage).
+const CHAVE_IRRIGACOES = 'horta:irrigacoes';
+const REGISTROS_INICIAIS = [
+    { id: 'i4', data: '2026-10-06', hora: '08:00', volume: 6,   metodo: 'Gotejamento' },
+    { id: 'i3', data: '2026-10-05', hora: '17:30', volume: 5,   metodo: 'Gotejamento' },
+    { id: 'i2', data: '2026-10-04', hora: '08:15', volume: 6,   metodo: 'Regador manual' },
+    { id: 'i1', data: '2026-10-03', hora: '08:00', volume: 4.5, metodo: 'Gotejamento' },
 ];
+
+let historico = [];
+let modoArmazenamento = 'local'; // 'servidor' ou 'local'
+
+const ordenarHistorico = () => historico.sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora));
+const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function lerLocal() {
+    try {
+        const j = JSON.parse(localStorage.getItem(CHAVE_IRRIGACOES));
+        if (Array.isArray(j)) return j;
+    } catch (e) { /* sem dados salvos */ }
+    return REGISTROS_INICIAIS.map((r) => ({ ...r }));
+}
+
+function salvarLocal() {
+    try { localStorage.setItem(CHAVE_IRRIGACOES, JSON.stringify(historico)); } catch (e) { /* ignora */ }
+}
+
+async function carregarHistorico() {
+    let lista = null;
+    if (location.protocol.startsWith('http')) {
+        try {
+            const r = await fetch('/api/irrigacoes', { cache: 'no-store' });
+            if (!r.ok) throw new Error(r.status);
+            lista = await r.json();
+            modoArmazenamento = 'servidor';
+        } catch (e) { /* sem servidor: usa o navegador */ }
+    }
+    if (!lista) { lista = lerLocal(); modoArmazenamento = 'local'; }
+
+    if (JSON.stringify(lista) !== JSON.stringify(historico)) {
+        historico = lista;
+        ordenarHistorico();
+        renderTabela();
+        atualizarGrafico();
+    }
+    renderStatusArmazenamento();
+}
+
+async function adicionarRegistro(reg) {
+    if (modoArmazenamento === 'servidor') {
+        const r = await fetch('/api/irrigacoes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reg),
+        });
+        if (!r.ok) throw new Error('Falha ao salvar');
+        reg = await r.json();
+    } else {
+        reg.id = String(Date.now());
+    }
+    historico.push(reg);
+    ordenarHistorico();
+    if (modoArmazenamento === 'local') salvarLocal();
+}
+
+async function excluirRegistro(id) {
+    if (modoArmazenamento === 'servidor') {
+        const r = await fetch('/api/irrigacoes/' + encodeURIComponent(id), { method: 'DELETE' });
+        if (!r.ok && r.status !== 404) throw new Error('Falha ao excluir');
+    }
+    historico = historico.filter((r) => r.id !== id);
+    if (modoArmazenamento === 'local') salvarLocal();
+}
+
+function renderStatusArmazenamento() {
+    $('armazenamento-status').textContent = modoArmazenamento === 'servidor'
+        ? 'Registros salvos no servidor: aparecem em qualquer navegador.'
+        : 'Registros salvos só neste navegador. Para salvar em todos, abra o site pelo servidor (node server.js).';
+}
 
 let grafico = null;
 
@@ -15,9 +89,10 @@ function renderTabela() {
     $('irrigation-table-body').innerHTML = historico.map(r => `
         <tr>
             <td>${fmtData(r.data)}</td>
-            <td>${r.hora}</td>
+            <td>${esc(r.hora)}</td>
             <td>${fmtNum(r.volume)} L</td>
-            <td>${r.metodo}</td>
+            <td>${esc(r.metodo)}</td>
+            <td><button class="btn-del" type="button" data-id="${esc(r.id)}" aria-label="Excluir registro de ${fmtData(r.data)} às ${esc(r.hora)}">Excluir</button></td>
         </tr>`).join('');
 }
 
@@ -169,8 +244,9 @@ function abrirSimulador(e) {
 
 // --- EVENTOS ---
 document.addEventListener('DOMContentLoaded', () => {
-    renderTabela();
     criarGrafico();
+    carregarHistorico();
+    setInterval(() => { if (modoArmazenamento === 'servidor') carregarHistorico(); }, 15000);
     atualizarPainelSensores();
     escutarSensores(receberSensores, () => sensores);
     $('link-simulador').addEventListener('click', abrirSimulador);
@@ -183,23 +259,43 @@ document.addEventListener('DOMContentLoaded', () => {
     $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) fecharModal(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
 
-    $('irrigation-form').addEventListener('submit', (e) => {
+    $('irrigation-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        historico.push({
-            data: $('data').value,
-            hora: $('hora').value,
-            volume: parseFloat($('volume').value),
-            metodo: $('metodo').value,
-        });
-        // mais recente primeiro (data + hora)
-        historico.sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora));
+        const volume = parseFloat($('volume').value);
+        try {
+            await adicionarRegistro({
+                data: $('data').value,
+                hora: $('hora').value,
+                volume,
+                metodo: $('metodo').value,
+            });
+        } catch (err) {
+            alert('Não foi possível salvar o registro. Verifique se o servidor está rodando.');
+            return;
+        }
         renderTabela();
         atualizarGrafico();
         // irrigar sobe a umidade (~2% por litro) e avisa o simulador
-        sensores = { ...sensores, umidade: Math.min(100, Math.round(sensores.umidade + parseFloat($('volume').value) * 2)), ts: Date.now() };
+        sensores = { ...sensores, umidade: Math.min(100, Math.round(sensores.umidade + volume * 2)), ts: Date.now() };
         transmitirSensores(sensores);
         atualizarPainelSensores();
         fecharModal();
+    });
+
+    // Excluir registro (botão em cada linha)
+    $('irrigation-table-body').addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-id]');
+        if (!btn) return;
+        const reg = historico.find((r) => r.id === btn.dataset.id);
+        if (!reg || !confirm(`Excluir a irrigação de ${fmtData(reg.data)} às ${reg.hora} (${fmtNum(reg.volume)} L)?`)) return;
+        try {
+            await excluirRegistro(reg.id);
+        } catch (err) {
+            alert('Não foi possível excluir o registro. Verifique se o servidor está rodando.');
+            return;
+        }
+        renderTabela();
+        atualizarGrafico();
     });
 
     // Estimativa: ~3 kg e ~30 frutos por pé
